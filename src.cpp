@@ -5,6 +5,7 @@
 #include<string>
 #include<map>
 #include<algorithm>
+#include <queue>
 using namespace std;
 
 //Object to store different data about a crime -- sorry for the crazy long constructor
@@ -89,14 +90,36 @@ map<int, vector<Crime>> treeSort(vector<Crime> crimeData){ //sorting by age usin
 
 }
 
+priority_queue<pair<int, string>> heapSort(vector<Crime> crimeData)
+{
+	map<string, int> crimeLocationMap;
+	priority_queue<pair<int, string>> crimeLocationsHeap;
 
+	for (int i = 1; i < crimeData.size(); i++) 
+	{
+		string location = crimeData[i].Area_Name;
+		if (crimeLocationMap.count(location) == 0)
+			crimeLocationMap.insert(make_pair(location, 1));
+		else
+			crimeLocationMap[location]++;
+	}
+	for (auto iter = crimeLocationMap.begin(); iter != crimeLocationMap.end(); iter++)
+	{
+		int num = iter->second;
+		string crime = iter->first;
+		crimeLocationsHeap.push(make_pair(num, crime));
+	}
+	cout << crimeLocationsHeap.top().second << " reported " << crimeLocationsHeap.top().first << " crimes.\n";
+	return crimeLocationsHeap;
+}
 
 int main()
 {
 	vector<Crime> crimes; //data structure holding crime data 
-    readData(crimes); //passed by refrence 
+    	readData(crimes); //passed by refrence 
 
 	map<int, vector<Crime>> treeSortResult = treeSort(crimes); //result of treeSort 
+	priority_queue<pair<int, string>> heapSortResult = heapSort(crimes); //result of heapSort
 
 return 0;
 
