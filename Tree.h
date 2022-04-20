@@ -1,159 +1,133 @@
 #pragma once
 #include "Crime.h"
-using namespace::std
+using namespace std;
 
-struct Node
+struct avlNode
 {
-    int age;
+    int gatorID;
     int height;
-    Node* left;
-    Node* right;
+    int balanceFac;
+    avlNode *left;
+    avlNode *right;
+    avlNode() : gatorID(0), left(nullptr), right(nullptr), height(0), balanceFac(0) {}
+    avlNode(int x) : gatorID(x), left(nullptr), right(nullptr), height(0), balanceFac(0) {}
+    avlNode(int x, avlNode *left, avlNode *right) : gatorID(x), left(left), right(right), height(0), balanceFac(0) {}
 
-    Node()
-    {
-        age = 0;
-        height = 0;
-        left = nullptr;
-        right = nullptr;
-    }
-    Node(int newAge)
-    {
-        //overload constructor
-        age = newAge;
-        height = 0;
-        left = nullptr;
-        right = nullptr;
-    }
+
 };
 
-class AVLTree
+class avlTree
 {
-    Node* head = nullptr;
-    //Right/left Rotate
-    Node* rightRotate(Node* node)
-    {
-        Node* newParent = node->left;
-        Node* grandChild = node->left->right;
-
-        newParent->right = node;
-        node->left = grandChild;
-
-        //set height
-        node->height = getHeight(node);
-        newParent->height = getHeight(newParent);
-
-        return newParent;
-    }
-    Node* leftRotate(Node* node)
-    {
-        Node* grandChild = node->right->left;
-        Node* newParent = node->right;
-
+    avlNode* root = nullptr;
+    vector<avlNode*> treeVec;
+    int count = 0;
+        avlNode* leftRotation(avlNode* node){
+        avlNode* grandchild = node->right->left;
+        avlNode* newParent = node->right; 
         newParent->left = node;
-        node->right = grandChild;
+        node->right = grandchild;
+        if(newParent->left != nullptr)
+            updateHeight(newParent->left);
+        if(newParent->right != nullptr)
+            updateHeight(newParent->right);
+        updateHeight(newParent);
 
-        //set height
-        node->height = getHeight(node);
-        newParent->height = getHeight(newParent);
 
         return newParent;
     }
-    int getHeight(Node* node)
-    {
-        if (node == nullptr)
-            return NULL;
-        else
-            return max(getHeight(node->left), getHeight(node->right)) + 1;
-    }
+    avlNode* rightRotation(avlNode* node){
+        avlNode* grandchild = node->left->right;
+        avlNode* newParent = node->left; 
+        newParent->right = node;
+        node->left = grandchild;
+        if(newParent->left != nullptr)
+            updateHeight(newParent->left);
+        if(newParent->right != nullptr)
+            updateHeight(newParent->right);
+        updateHeight(newParent);
 
-public:
-    //insert function
-    Node* Insert(Node* node, int newAge)
-    {
-        if (head == NULL)
-        {
-            head = InsertHelper(newAge);
-            return  head;
-        }
-        if (node == NULL)
-        {
-            //if node is empty return new head
-            return  InsertHelper(newAge);
-        }
-        else if (newAge < node->age)
-        {
-            //rerecurive insert to left node
-            node->left = Insert(node->left, newAge);
-        }
-        else if (newAge > node->age)
-        {
-            //recursive insert to right node
-            node->right = Insert(node->right, newAge);
-        }
-        else {
-            //duplicate age
-            return node;
-        }
-        node->height = getHeight(node);
 
-        head = Balance(newAge, node);
-        return head;
+        return newParent;
     }
-    Node* InsertHelper(int newAge)
-    {
-        Node* newNode = new Node(newAge);
-        //set height
-        int newHeight = getHeight(newNode);
-        newNode->height = newHeight;
-        return newNode;
-    }
-    Node* Balance(int newAge, Node* node)
-    {
-        int balance = getBalance(node);
-        Node* balancedNode = nullptr;
-        if (balance == 2)
-        {
-            if (getBalance(node->left) == 1)
-            {
-                balancedNode = rightRotate(node);
-            }
-            else if (getBalance(node->right) == -1)
-            {
-                balancedNode = rightRotate(leftRotate(node));
-            }
-        }
-        else if (balance == -2)
-        {
-            if (getBalance(node->right) == -1)
-            {
-                balancedNode = leftRotate(node);
-            }
-            else if (getBalance(node->left) == 1)
-            {
-                balancedNode = leftRotate(rightRotate(node));
-            }
-        }
-        else
-            //already balanced
-            return node;
-        return balancedNode;
-    }
-    int getBalance(Node* node)
-    {
-        if (node == nullptr)
-            return 0;
-        return node->left->height - node->right->height;
-    }
-    vector<int> PrintInorder(Node* node)
-    {
-        vector<int> sortedAges;
-        if (node != NULL)
-        {
-            //search left node first then right
-            PrintInorder(node->left);
-            sortedAges.push_back(node->age);
-            PrintInorder(node->right);
-        }
-        return sortedAges;
-    }
+    public:
+    vector<int> sortAge;
+        void insert(int id);
+        avlNode* insertHelper(avlNode* root, int id);
+        void updateHeight(avlNode* root);//done
+        void printInorder(); //done
+        void printInorderHelper(avlNode* root);//done
 };
+
+void avlTree::insert(int id){
+    this->root = insertHelper(this->root, id);
+}
+avlNode* avlTree::insertHelper(avlNode* root, int id){ //done
+//Insert BST requirements::
+            if(root == nullptr){
+               cout << "successful" << endl;
+               return new avlNode(id);
+            }
+            else if(id < root->gatorID){ //left -- key less than root
+               //cout << root->gatorID << endl;
+               root->left = insertHelper(root->left, id);
+            }
+            else{ //right 
+               root->right = insertHelper(root->right, id); 
+            }
+            
+            //Updating Height and Balance Factor::
+            updateHeight(root);
+
+            
+            //auto balancing avl requirments::
+            if(root->balanceFac == -2){//right heavy
+                if(root->right->balanceFac == -1){
+                    //right right case || left rotation
+                    root = leftRotation(root);
+                }
+                else{
+                    //right left case
+                   root->right = rightRotation(root->right);
+                   root = leftRotation(root);
+                }
+            }
+            else if(root->balanceFac == 2){ //left heavy
+                if(root->left->balanceFac == 1){
+                    //left left case || right rotation
+                    root = rightRotation(root);
+                }
+                else{ //left right case || left rotate then right rotate || ex. insert order 3,1,2
+                   root->left = leftRotation(root->left);
+                   root = rightRotation(root);
+                }
+            }      
+            return root;
+}
+void avlTree::updateHeight(avlNode* node){
+    int leftH = -1;
+    int rightH = -1;
+
+    if(node->left != nullptr)
+        leftH = node->left->height;
+    if(node->right != nullptr)
+        rightH = node->right->height;
+
+    node->height = max(leftH, rightH) + 1;
+
+    node->balanceFac = leftH - rightH;
+
+}
+void avlTree::printInorder(){ printInorderHelper(this->root);}
+void avlTree::printInorderHelper(avlNode* root){
+    if (root != nullptr) {
+        printInorderHelper(root->left);
+        if(root->left != nullptr)
+            cout << ", ";
+        cout << root->gatorID;
+        sortAge.push_back(root->gatorID);
+        if(root->right != nullptr)
+            cout << ", ";
+        printInorderHelper(root->right);
+
+    }
+}
