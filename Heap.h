@@ -1,61 +1,40 @@
 #pragma once
-#include "Crime.h"
+
+#include <vector>
+#include <iostream>
 using namespace std;
 
 struct heap
 {
-	vector<pair<string, int>> h;
-
-	heap(vector<Crime> crimeData);
-	pair<string, int> pop();
-	void push(pair<string, int> p);
+	vector<int> h;
+	heap(int p);
+	heap(vector<int> Ages);
+	int pop();
+	void push(int p);
 
 };
-
-heap::heap(vector<Crime> crimeData)
+heap::heap(int p)
 {
-	vector<pair<string, int>> crimeLocations;
-	for (int i = 1; i < crimeData.size(); i++)
+	push(p);
+}
+heap::heap(vector<int> Ages)
+{
+
+	h.push_back(Ages[0]);
+
+	for (int i = 1; i < Ages.size(); i++)
 	{
-		int k;
-		string location = crimeData[i].Area_Name;
-		bool inVector = false;
-		for (k = 0; k < crimeLocations.size(); k++)
-		{
-			if (crimeLocations[k].first == location)
-			{
-				inVector = true;
-				break;
-			}
-		}
-
-		if (inVector == false)
-			crimeLocations.push_back(make_pair(location, 1));
-		else
-		{
-			int tempSecond = crimeLocations[k].second + 1;
-			string tempFirst = crimeLocations[k].first;
-			crimeLocations[k] = make_pair(tempFirst, tempSecond);
-		}
-	}
-
-	h.push_back(crimeLocations[0]);
-
-	for (int i = 1; i < crimeLocations.size(); i++)
-	{
-		h.push_back(crimeLocations[i]);
+		h.push_back(Ages[i]);
 
 		//	heapify up
 		int k = i;
 		int pIndex = k / 2;
-		while (h[pIndex].second < h[k].second)
+		while (h[pIndex] < h[k])
 		{
 			//	swap values
-			string tempFirst = h[k].first;
-			int tempSecond = h[k].second;
-
+			int temp = h[k];
 			h[k] = h[pIndex];
-			h[pIndex] = make_pair(tempFirst, tempSecond);
+			h[pIndex] = temp;
 
 			//	adjust indices
 			k = pIndex;
@@ -64,44 +43,20 @@ heap::heap(vector<Crime> crimeData)
 
 	}
 }
-pair<string, int> heap::pop()
+int heap::pop()
 {
-	return h[0];
-	//cout << h[(h.size() - 1)].first << " " << h[h.size() - 1].second << endl;
-	int last = h.size() - 1;
-	h[0] = h[last];
-	h.erase(h.begin() + (h.size() - 1));
-
-	//	heapify down
-	int i = 0;
-	int l, r = 0;
-	if (h.size() - 1 >= 2 * i + 2)
+	if (h.size() > 1)
 	{
-		l = 2 * i + 1;
-		r = 2 * i + 2;
-	}
-	else if (h.size() - 1 >= 2 * i + 1)
-	{
-		l = 2 * i + 1;
-		r = 2 * i + 1;
-	}
+		int output = h[0];
+		int last = h.size() - 1;
 
-	while (h[i].second < h[l].second || h[i].second < h[r].second)
-	{
-		int successor;
-		if (h[l].second >= h[r].second)
-			successor = l;
-		else
-			successor = r;
+		h[0] = h[last];
+		h.erase(h.begin() + (h.size() - 1));
 
-		string tempFirst = h[i].first;
-		int tempSecond = h[i].second;
-		h[i] = h[successor];
-		h[successor] = make_pair(tempFirst, tempSecond);
-
-		//	adjust indices
-		i = successor;
-
+		//	heapify down
+		int i = 0;
+		int l = 0;
+		int r = 0;
 		if (h.size() - 1 >= 2 * i + 2)
 		{
 			l = 2 * i + 1;
@@ -112,27 +67,61 @@ pair<string, int> heap::pop()
 			l = 2 * i + 1;
 			r = 2 * i + 1;
 		}
+
+		while (h[i] < h[l] || h[i] < h[r])
+		{
+			int successor;
+			if (h[l] >= h[r])
+				successor = l;
+			else
+				successor = r;
+
+
+			int temp = h[i];
+			h[i] = h[successor];
+			h[successor] = temp;
+
+			//	adjust indices
+			i = successor;
+
+			if (h.size() - 1 >= 2 * i + 2)
+			{
+				l = 2 * i + 1;
+				r = 2 * i + 2;
+			}
+			else if (h.size() - 1 >= 2 * i + 1)
+			{
+				l = 2 * i + 1;
+				r = 2 * i + 1;
+			}
+		}
+		return output;
+	}
+	else
+	{
+		int output = h[0];
+		h = {};
+		return output;
 	}
 }
-void heap::push(pair<string, int> p)
+void heap::push(int p)
 {
 	h.push_back(p);
 
 	//	heapify up
 	int k = h.size() - 1;
 	int pIndex = k / 2;
-	while (h[pIndex].second < h[k].second)
+	while (h[pIndex] < h[k])
 	{
 		//	swap values
-		string tempFirst = h[k].first;
-		int tempSecond = h[k].second;
-
+		int temp = h[k];
 		h[k] = h[pIndex];
-		h[pIndex] = make_pair(tempFirst, tempSecond);
+		h[pIndex] = temp;
 
 		//	adjust indices
 		k = pIndex;
 		pIndex = k / 2;
 	}
+
 }
 
