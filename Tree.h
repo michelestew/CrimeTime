@@ -1,16 +1,18 @@
 #pragma once
-#include<"Crime.h">
-using namespace std;
+#include "Crime.h"
+using namespace::std
 
 struct Node
 {
     int age;
+    int height;
     Node* left;
     Node* right;
 
     Node()
     {
-        age = NULL;
+        age = 0;
+        height = 0;
         left = nullptr;
         right = nullptr;
     }
@@ -18,6 +20,7 @@ struct Node
     {
         //overload constructor
         age = newAge;
+        height = 0;
         left = nullptr;
         right = nullptr;
     }
@@ -27,14 +30,17 @@ class AVLTree
 {
     Node* head = nullptr;
     //Right/left Rotate
-    //psuedo code from Kapoor youtube videos: https://www.youtube.com/watch?v=DcnxKzwiL84&list=PLvBZ6Nw3S6DQlFrtQLjYpWnuD-mgXSkUz&index=3
     Node* rightRotate(Node* node)
     {
-        Node* grandChild = node->left->right;
         Node* newParent = node->left;
+        Node* grandChild = node->left->right;
 
         newParent->right = node;
         node->left = grandChild;
+
+        //set height
+        node->height = getHeight(node);
+        newParent->height = getHeight(newParent);
 
         return newParent;
     }
@@ -45,6 +51,10 @@ class AVLTree
 
         newParent->left = node;
         node->right = grandChild;
+
+        //set height
+        node->height = getHeight(node);
+        newParent->height = getHeight(newParent);
 
         return newParent;
     }
@@ -60,12 +70,12 @@ public:
     //insert function
     Node* Insert(Node* node, int newAge)
     {
-        if (getHeight(head) == NULL)
+        if (head == NULL)
         {
             head = InsertHelper(newAge);
             return  head;
         }
-        if (getHeight(node) == NULL)
+        if (node == NULL)
         {
             //if node is empty return new head
             return  InsertHelper(newAge);
@@ -84,12 +94,17 @@ public:
             //duplicate age
             return node;
         }
+        node->height = getHeight(node);
+
         head = Balance(newAge, node);
         return head;
     }
     Node* InsertHelper(int newAge)
     {
         Node* newNode = new Node(newAge);
+        //set height
+        int newHeight = getHeight(newNode);
+        newNode->height = newHeight;
         return newNode;
     }
     Node* Balance(int newAge, Node* node)
@@ -127,7 +142,7 @@ public:
     {
         if (node == nullptr)
             return 0;
-        return getHeight(node->left) - getHeight(node->right);
+        return node->left->height - node->right->height;
     }
     vector<int> PrintInorder(Node* node)
     {
@@ -136,8 +151,9 @@ public:
         {
             //search left node first then right
             PrintInorder(node->left);
-            sortedAges.push_back(node);
+            sortedAges.push_back(node->age);
             PrintInorder(node->right);
         }
         return sortedAges;
     }
+};
