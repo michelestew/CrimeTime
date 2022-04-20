@@ -123,6 +123,12 @@ public:
             return node;
         return balancedNode;
     }
+    int getBalance(Node* node)
+    {
+        if (node == nullptr)
+            return 0;
+        return getHeight(node->left) - getHeight(node->right);
+    }
     vector<int> PrintInorder(Node* node)
     {
         vector<int> sortedAges;
