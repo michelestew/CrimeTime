@@ -12,6 +12,8 @@
 #include"Heap.h"
 #include"Crime.h"
 #include"Tree.h"
+#include<math.h>
+#include<unordered_set>
 using namespace std;
 
 
@@ -48,14 +50,17 @@ void treeSort(vector<Crime> crimeData, string& text){ //sorting by age using tre
     for(int i = 0; i < crimeData.size(); i++){
         tree.insert(stoi(crimeData[i].Age));
     }
+    auto start = chrono::system_clock::now();
     tree.printInorder();
+    auto end = chrono::system_clock::now();
 
-    
+    chrono::duration<double> elapsed_seconds = end-start;
+    time_t end_time = chrono::system_clock::to_time_t(end);
+    cout << "TREE SORT: finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
     text += to_string(tree.sortAge[tree.sortAge.size() - 1]) + "\n";
     
 	
 }
-
 void getStats(string& text, vector<Crime> crimeData, string area){
     map<string, vector<Crime>> region;
 	map<string, vector<Crime>>::iterator itr;
@@ -64,42 +69,45 @@ void getStats(string& text, vector<Crime> crimeData, string area){
 		region[crimeData[i].Area_Name].push_back(crimeData[i]);
 	}
     text += ("Total number of crimes: " + to_string(region[area].size()) + "\n");
-    text += "Oldest Criminal: ";
+    text += "Oldest Criminal (Tree Sort): ";
     treeSort(region[area], text);
     text += "Month with most crime: ";
     map<int, vector<Crime>> month;
     map<int, vector<Crime>> time;
     map<int, vector<Crime>>::iterator it;
     map<int, vector<Crime>>::iterator itt;
+    heap h(0);
+    auto start = chrono::system_clock::now();
     for(int i = 1; i < region[area].size(); i++){
 		month[stoi(region[area][i].Arrest_Date.substr(0, 2))].push_back(crimeData[i]);
-        cout << stoi("20") << endl;
-        //time[stoi(region[area][i].Time.substr(0, 2))].push_back(crimeData[i]);
         if(region[area][i].Sex_Code == "M")
             male++;
         if(region[area][i].Sex_Code == "F")
             female++;
+        h.push(stoi(region[area][i].Age));
 	}
+
+    auto end = chrono::system_clock::now();
+    chrono::duration<double> elapsed_seconds = end-start;
+    time_t end_time = chrono::system_clock::to_time_t(end);
+    cout << "HEAP SORT: finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s" << endl;
     int m = 1;
-    int t = 1;
     for(it = month.begin(); it != month.end(); it++){
         if(it->second.size() > month[m].size()){
             m = it->first;
         }
     }
-   // for(itt = time.begin(); itt != time.end(); itt++){
-   //     cout << itt->first << endl;
-   //     if(itt->second.size() > time[t].size()){
-   //         t = itt->first;
-   //     }
-   // }
     text += to_string(m) + "\n";
+    text += "Oldest Criminal (Heap Sort): " + to_string(h.pop()) + "\n";
     text += "Total Female Charges: " + to_string(female) + "\n";
     text += "Total Male Charges: " + to_string(male) + "\n";
-    text += "Most Popular Crime Time: " + to_string(t) + "00 hours" + "\n";
 
 
+
+   
+        
 }
+
 
 int main()
 {
@@ -111,13 +119,7 @@ int main()
 	for(int i = 1; i < crimes.size(); i++){
 		regionData[crimes[i].Area_Name].push_back(crimes[i]);
 	}
-	//map<int, vector<Crime>> treeSortResult = treeSort(crimes); //result of treeSort 
-    heap result(crimes); //result of heapSort
-	for (int i = 0; i < result.h.size(); i++)
-	{
-		pair<string, int> top = result.pop();
-		cout << result.h[i].first << ": " << result.h[i].second << endl;
-	}
+
 
     int w = 703;
     int h = 798;
@@ -136,7 +138,7 @@ int main()
         cout << "problem" << endl;
     }
     title.setFont(font);
-    title.setCharacterSize(20);
+    title.setCharacterSize(25);
     playerText.setFont(font);
     playerText.setCharacterSize(38);
     LAmap.setColor(sf::Color::Transparent);
@@ -155,14 +157,14 @@ string s;
                 window.close();
 
             if (event.type == sf::Event::TextEntered){
-                cout << "Unicode: " << event.text.unicode <<endl;
+                //cout << "Unicode: " << event.text.unicode <<endl;
                 if(playerInput == "Enter a region"){
                     playerInput.clear();
                     playerText.setString(playerInput);
                 }
                 if(event.text.unicode == 13){
                     if((regionData.find(playerInput) != regionData.end())){
-                        s = "------" + playerInput + "------ \n ";
+                        s = "------" + playerInput + "------\n";
                         getStats(s, crimes, playerInput);
                         map.setColor(sf::Color::Transparent);
                         LAmap.setColor(sf::Color::White);
@@ -214,6 +216,7 @@ string s;
 
 
         window.display();
+
     }
 
 return 0;

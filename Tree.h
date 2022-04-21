@@ -1,5 +1,6 @@
 #pragma once
 #include "Crime.h"
+#include <chrono>
 using namespace std;
 
 struct avlNode
@@ -64,7 +65,6 @@ void avlTree::insert(int id){
 avlNode* avlTree::insertHelper(avlNode* root, int id){ //done
 //Insert BST requirements::
             if(root == nullptr){
-               cout << "successful" << endl;
                return new avlNode(id);
             }
             else if(id < root->gatorID){ //left -- key less than root
@@ -121,12 +121,7 @@ void avlTree::printInorder(){ printInorderHelper(this->root);}
 void avlTree::printInorderHelper(avlNode* root){
     if (root != nullptr) {
         printInorderHelper(root->left);
-        if(root->left != nullptr)
-            cout << ", ";
-        cout << root->gatorID;
         sortAge.push_back(root->gatorID);
-        if(root->right != nullptr)
-            cout << ", ";
         printInorderHelper(root->right);
 
     }

@@ -124,4 +124,3 @@ void heap::push(int p)
 	}
 
 }
-
